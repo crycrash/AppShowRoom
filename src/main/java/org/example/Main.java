@@ -1,18 +1,20 @@
 package org.example;
-import java.awt.Dimension;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.videoio.VideoCapture;
 
 public class Main extends JFrame {
 
@@ -31,11 +33,12 @@ public class Main extends JFrame {
 
         panel.add(Box.createRigidArea(new Dimension(10, 10)));
 
-        JButton button = new JButton("Показать JFileChooser");
+        JButton button = new JButton("ЖАТЬ");
         button.setAlignmentX(CENTER_ALIGNMENT);
 
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                setVisible(false);
                 JFileChooser fileopen = new JFileChooser();
                 fileopen.setFileFilter(new FileFilter() {
                     @Override
@@ -56,11 +59,43 @@ public class Main extends JFrame {
                 int ret = fileopen.showDialog(null, "Открыть файл");
                 if (ret == JFileChooser.APPROVE_OPTION) {
                     File file = fileopen.getSelectedFile();
-                    label.setText(file.getName());
-                }
-            }
-        });
+                    //label.setText(file.getName());
+                    JFrame frame = new JFrame("Display Photo");
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    frame.setSize(screenSize);
+                    JLabel photoLabel = new JLabel();
+
+                    try {
+                        ImageIcon imageIcon = new ImageIcon(ImageIO.read(file));
+                        photoLabel.setIcon(imageIcon);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Error loading image: " + ex.getMessage());
+                    }
+                    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    setSize(800, 600); // Начальный размер окна
+                    setLocationRelativeTo(null); // Центрирование окна по центру экрана
+                    photoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                    photoLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+                    getContentPane().setLayout(new BorderLayout());
+                    getContentPane().add(button, BorderLayout.NORTH);
+                    getContentPane().add(photoLabel, BorderLayout.CENTER);
+
+                    frame.setLayout(new BorderLayout());
+                    frame.add(photoLabel, BorderLayout.CENTER);
+                    frame.setVisible(true);
+
+                }
+            }}
+        );
+
+
+        JButton button1 = new JButton("НЕ ЖАТЬ");
+        button1.setAlignmentX(CENTER_ALIGNMENT);
+
+        panel.add(button1);
         panel.add(button);
         panel.add(Box.createVerticalGlue());
         getContentPane().add(panel);
@@ -69,8 +104,8 @@ public class Main extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-    }
 
+        }
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -79,5 +114,4 @@ public class Main extends JFrame {
                 new Main();
             }
         });
-    }
-}
+    }}
