@@ -1,39 +1,61 @@
 package org.example;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import javafx.event.EventHandler;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.videoio.VideoCapture;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Main extends JFrame {
+    private String userName;
+    private JButton startButton;
+    File file;
 
-    public Main() {
-        super("Тестовое окно");
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Main guiTest = new Main();
+            guiTest.createAndShowGUI();
+        });
+    }
+
+    private void createAndShowGUI() {
+        setTitle("Привет");
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        startButton = new JButton("Ввод");
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                userName = JOptionPane.showInputDialog("Введите имя");
+                create2NewButtons();
+            }
+        });
+        setPreferredSize(new Dimension(260, 220));
+        add(startButton);
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
 
-        panel.add(Box.createVerticalGlue());
+    private void create2NewButtons() {
+        setTitle(userName +", выберите как загрузить фото");
+        remove(startButton);
 
-        final JLabel label = new JLabel("Выбранный файл");
-        label.setAlignmentX(CENTER_ALIGNMENT);
-        panel.add(label);
-
-        panel.add(Box.createRigidArea(new Dimension(10, 10)));
-
-        JButton button = new JButton("ЖАТЬ");
+        JButton button = new JButton("Выбор из файлов");
         button.setAlignmentX(CENTER_ALIGNMENT);
 
         button.addActionListener(new ActionListener() {
@@ -58,60 +80,48 @@ public class Main extends JFrame {
 
                 int ret = fileopen.showDialog(null, "Открыть файл");
                 if (ret == JFileChooser.APPROVE_OPTION) {
-                    File file = fileopen.getSelectedFile();
-                    //label.setText(file.getName());
-                    JFrame frame = new JFrame("Display Photo");
+                    file = fileopen.getSelectedFile();
+                    JFrame frame = new JFrame("Подтвердите фото");
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
                     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                     frame.setSize(screenSize);
-                    JLabel photoLabel = new JLabel();
-
-                    try {
-                        ImageIcon imageIcon = new ImageIcon(ImageIO.read(file));
-                        photoLabel.setIcon(imageIcon);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(null, "Error loading image: " + ex.getMessage());
-                    }
+                    JLabel photoLabel = printPhoto(file);
                     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    setSize(800, 600); // Начальный размер окна
-                    setLocationRelativeTo(null); // Центрирование окна по центру экрана
-                    photoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                    photoLabel.setVerticalAlignment(SwingConstants.CENTER);
+                    setSize(300, 400); // Начальный размер окна
 
-                    getContentPane().setLayout(new BorderLayout());
-                    getContentPane().add(button, BorderLayout.NORTH);
-                    getContentPane().add(photoLabel, BorderLayout.CENTER);
 
-                    frame.setLayout(new BorderLayout());
+                    JButton acceptButton = new JButton("Дальше");
+                    accepting(acceptButton, file, frame);
+                    frame.add(acceptButton, BorderLayout.LINE_END);
+
                     frame.add(photoLabel, BorderLayout.CENTER);
                     frame.setVisible(true);
-
                 }
+
             }}
         );
+        JButton button2 = new JButton("Снять фото");
 
+        add(button);
+        add(button2);
 
-        JButton button1 = new JButton("НЕ ЖАТЬ");
-        button1.setAlignmentX(CENTER_ALIGNMENT);
+        revalidate();
+        repaint();
+    }
+    public JLabel printPhoto(File file){
 
-        panel.add(button1);
-        panel.add(button);
-        panel.add(Box.createVerticalGlue());
-        getContentPane().add(panel);
+        JLabel photoLabel = new JLabel();
 
-        setPreferredSize(new Dimension(260, 220));
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
-
+        try {
+            ImageIcon imageIcon = new ImageIcon(ImageIO.read(file));
+            photoLabel.setIcon(imageIcon);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Error loading image: " + ex.getMessage());
         }
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JFrame.setDefaultLookAndFeelDecorated(true);
-                JDialog.setDefaultLookAndFeelDecorated(true);
-                new Main();
-            }
-        });
-    }}
+        return photoLabel;
+    }
+    public void accepting(JButton button, File file1, JFrame frame){
+
+    }
+}
